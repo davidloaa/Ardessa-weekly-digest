@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ardessa — Weekly Digest</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;1,600;1,700;1,800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0c0f;--s1:#111418;--s2:#181c22;--s3:#1e2430;
+  --bd:rgba(255,255,255,0.06);--bd2:rgba(255,255,255,0.10);
+  --t1:#f0f2f6;--t2:#8b92a5;--t3:#464e60;
+  --acc:#4a9eff;--grn:#3ecf8e;--red:#ff5f5f;
+  --cond:'Barlow Condensed',sans-serif;--sans:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+}
+body{background:var(--bg);color:var(--t1);font-family:var(--sans);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 26px;border-bottom:1px solid var(--bd);flex-shrink:0}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.lm{width:24px;height:24px;background:var(--t1);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:400;color:var(--bg)}
+.hn{font-size:13px;font-weight:500;letter-spacing:-.2px}
+.hs{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:1px}
+.wtag{font-family:var(--mono);font-size:10px;color:var(--t3);background:var(--s1);border:1px solid var(--bd);padding:4px 10px;border-radius:20px}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--bd);flex-shrink:0;padding:0 26px}
+.tab{padding:11px 16px;font-size:12px;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-weight:500}
+.tab.a{color:var(--t1);border-bottom-color:var(--t1)}
+.tab:hover:not(.a){color:var(--t2)}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:290px 1fr;flex:1;overflow:hidden;min-height:0}
+.left{border-right:1px solid var(--bd);padding:20px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:18px}
+.right{overflow-y:auto;padding:22px 26px;display:flex;flex-direction:column;gap:18px}
+
+/* MISC */
+.pl{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:9px}
+.pv{display:none}.pv.a{display:flex;flex-direction:column;gap:16px}
+
+/* GENERATE BTN */
+.gbtn{width:100%;background:var(--t1);color:var(--bg);border:none;padding:11px;border-radius:6px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.gbtn:hover{background:#e2e6ee;transform:translateY(-1px)}.gbtn:active{transform:none}
+.gbtn:disabled{background:var(--s2);color:var(--t3);cursor:not-allowed;transform:none}
+.spin{width:11px;height:11px;border:2px solid rgba(10,12,15,.3);border-top-color:var(--bg);border-radius:50%;animation:rot .6s linear infinite;display:none}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* CONFIG */
+.ci{margin-bottom:13px}
+.cl{display:block;font-size:11px;color:var(--t2);margin-bottom:5px}
+.cs{width:100%;background:var(--s1);border:1px solid var(--bd2);border-radius:5px;padding:7px 10px;color:var(--t1);font-family:var(--sans);font-size:12px;appearance:none;cursor:pointer}
+.cs:focus{outline:none;border-color:var(--acc)}
+.tg{display:flex;flex-direction:column;gap:6px}
+.ti{display:flex;align-items:center;gap:7px;cursor:pointer}
+.ti input{width:12px;height:12px;accent-color:var(--acc)}
+.ti span{font-size:11px;color:var(--t2)}
+
+/* STATUS LOG */
+.slog{background:var(--s1);border:1px solid var(--bd);border-radius:6px;padding:11px;font-family:var(--mono);font-size:10px;color:var(--t3);line-height:1.9;min-height:80px;max-height:150px;overflow-y:auto}
+.sl{display:block}.sl.act{color:var(--acc)}.sl.ok{color:var(--grn)}.sl.err{color:var(--red)}
+
+/* EMPTY */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:50px 20px;color:var(--t3);text-align:center;flex:1}
+.ei{font-size:30px;opacity:.3;margin-bottom:3px}
+.et{font-size:14px;color:var(--t2);font-weight:500}
+.es{font-size:12px;line-height:1.7;max-width:250px}
+
+/* RESULT HDR */
+.rh{display:flex;align-items:center;justify-content:space-between;padding-bottom:13px;border-bottom:1px solid var(--bd)}
+.rt{font-size:15px;font-weight:500;letter-spacing:-.3px}
+.rm{font-family:var(--mono);font-size:10px;color:var(--t3)}
+
+/* NEWS */
+.nc{background:var(--s1);border:1px solid var(--bd);border-radius:6px;padding:12px 13px;display:flex;gap:9px}
+.nn{font-family:var(--mono);font-size:10px;color:var(--t3);min-width:16px;padding-top:2px}
+.nh{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:3px;line-height:1.5}
+.ni{font-size:11px;color:var(--t2);line-height:1.6}
+.ns{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:4px}
+
+/* POST CARD */
+.pc{background:var(--s1);border:1px solid var(--bd2);border-radius:8px;overflow:hidden}
+.ph{padding:10px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.plbl{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:.1em;text-transform:uppercase}
+.pbtns{display:flex;gap:5px}
+.pb{background:var(--s2);border:1px solid var(--bd);border-radius:4px;padding:4px 8px;font-size:11px;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.pb:hover{color:var(--t1);border-color:var(--bd2)}.pb.ok{color:var(--grn);border-color:var(--grn)}
+.pbody{padding:16px;font-size:13px;line-height:1.85;color:var(--t1);white-space:pre-wrap;word-break:break-word}
+.pft{display:flex;gap:12px;padding:9px 13px;border-top:1px solid var(--bd)}
+.pst{font-family:var(--mono);font-size:10px;color:var(--t3)}.pst span{color:var(--t2)}
+
+/* ADJUST */
+.adj{display:flex;gap:7px}
+.ata{flex:1;background:var(--s1);border:1px solid var(--bd2);border-radius:5px;padding:8px 11px;color:var(--t1);font-family:var(--sans);font-size:12px;resize:none}
+.ata:focus{outline:none;border-color:var(--acc)}.ata::placeholder{color:var(--t3)}
+.ab{background:var(--s2);border:1px solid var(--bd2);border-radius:5px;padding:8px 12px;color:var(--t2);font-family:var(--sans);font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.ab:hover{color:var(--t1)}
+
+/* VISUAL CONTROLS */
+.vi{display:flex;flex-direction:column;gap:5px}
+.vl{font-size:11px;color:var(--t2)}
+.vin{width:100%;background:var(--s1);border:1px solid var(--bd2);border-radius:5px;padding:7px 10px;color:var(--t1);font-family:var(--sans);font-size:12px}
+.vin:focus{outline:none;border-color:var(--acc)}.vin::placeholder{color:var(--t3)}
+
+/* LAYOUT PICKER */
+.lg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.lo{background:var(--s1);border:1px solid var(--bd);border-radius:5px;padding:9px 8px;cursor:pointer;text-align:center;transition:all .15s}
+.lo.sel{border-color:var(--acc);background:rgba(74,158,255,.08)}
+.lo-i{font-size:16px;margin-bottom:3px}
+.lo-n{font-size:10px;color:var(--t2);font-family:var(--mono)}
+
+/* VISUAL GEN BTN */
+.vgbtn{width:100%;background:var(--s1);border:1px solid var(--bd2);border-radius:6px;padding:10px;font-family:var(--sans);font-size:12px;color:var(--t1);font-weight:500;cursor:pointer;transition:all .15s}
+.vgbtn:hover{border-color:var(--t1);background:var(--s2)}
+
+/* CANVAS */
+.cw{display:flex;flex-direction:column;gap:12px}
+.cc{position:relative;width:100%;max-width:520px;margin:0 auto;border-radius:8px;overflow:hidden;background:#000;border:1px solid var(--bd2);aspect-ratio:1/1}
+#vc{width:100%;height:100%;display:block}
+.ca{display:flex;gap:7px;justify-content:flex-end}
+.cab{background:var(--s1);border:1px solid var(--bd2);border-radius:5px;padding:7px 12px;font-size:12px;color:var(--t2);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.cab:hover{color:var(--t1)}.cab.p{background:var(--t1);color:var(--bg);border-color:var(--t1);font-weight:600}.cab.p:hover{background:#e2e6ee}
+.ve{width:100%;max-width:520px;margin:0 auto;border-radius:8px;border:1px dashed var(--bd2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:var(--t3);aspect-ratio:1/1}
+.vei{font-size:26px;opacity:.35}
+.vet{font-size:11px;font-family:var(--mono)}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="lm">A</div>
+    <div><div class="hn">Ardessa</div><div class="hs">Weekly Digest Generator</div></div>
+  </div>
+  <div class="wtag" id="wt">—</div>
+</div>
+
+<div class="tabs">
+  <div class="tab a" onclick="swTab('post',this)">Post</div>
+  <div class="tab" onclick="swTab('visual',this)">Visual</div>
+</div>
+
+<div class="layout">
+  <div class="left">
+
+    <!-- POST LEFT -->
+    <div id="pL" class="pv a">
+      <div>
+        <div class="pl">Generate</div>
+        <button class="gbtn" id="gb" onclick="run()">
+          <div class="spin" id="sp"></div>
+          <span id="bt">Generate this week's post</span>
+        </button>
+      </div>
+      <div>
+        <div class="pl">Configuration</div>
+        <div class="ci"><label class="cl">Tone</label>
+          <select class="cs" id="tone">
+            <option value="corporate">Corporate — clear, direct</option>
+            <option value="analytical">Analytical — data-focused</option>
+            <option value="editorial">Editorial — market POV</option>
+          </select>
+        </div>
+        <div class="ci"><label class="cl">News items</label>
+          <select class="cs" id="items">
+            <option value="3">3 items</option>
+            <option value="2">2 items</option>
+            <option value="4">4 items</option>
+          </select>
+        </div>
+        <div class="ci"><label class="cl">Focus areas</label>
+          <div class="tg">
+            <label class="ti"><input type="checkbox" id="f1" checked><span>GP-LP dynamics & fundraising</span></label>
+            <label class="ti"><input type="checkbox" id="f2" checked><span>AI in private markets</span></label>
+            <label class="ti"><input type="checkbox" id="f3" checked><span>Private markets macro</span></label>
+            <label class="ti"><input type="checkbox" id="f4"><span>Notable closes & fundraises</span></label>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="pl">Status</div>
+        <div class="slog" id="slog"><span class="sl">Ready. Press generate to start.</span></div>
+      </div>
+    </div>
+
+    <!-- VISUAL LEFT -->
+    <div id="vL" class="pv">
+      <div>
+        <div class="pl">Visual content</div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div class="vi"><label class="vl">Line 1 — bold statement</label><input class="vin" id="vl1" placeholder="e.g. Real signals."></div>
+          <div class="vi"><label class="vl">Line 2 — supporting line</label><input class="vin" id="vl2" placeholder="e.g. Not stale data."></div>
+          <div class="vi"><label class="vl">Optional subtext</label><input class="vin" id="vl3" placeholder="One short line (optional)"></div>
+        </div>
+      </div>
+      <div>
+        <div class="pl">Layout</div>
+        <div class="lg">
+          <div class="lo sel" onclick="selLo('centered',this)"><div class="lo-i">◼</div><div class="lo-n">Centered</div></div>
+          <div class="lo" onclick="selLo('bottom',this)"><div class="lo-i">▬</div><div class="lo-n">Bottom left</div></div>
+          <div class="lo" onclick="selLo('split',this)"><div class="lo-i">▥</div><div class="lo-n">Split</div></div>
+          <div class="lo" onclick="selLo('editorial',this)"><div class="lo-i">◧</div><div class="lo-n">Editorial</div></div>
+        </div>
+      </div>
+      <button class="vgbtn" onclick="genVis()">Generate visual →</button>
+    </div>
+
+  </div>
+  <div class="right">
+
+    <!-- POST RIGHT -->
+    <div id="pR" class="pv a">
+      <div class="empty" id="ep">
+        <div class="ei">⚡</div>
+        <div class="et">Ready to generate</div>
+        <div class="es">Press generate to search this week's private markets news and write the post.</div>
+      </div>
+      <div id="pr" style="display:none;flex-direction:column;gap:16px">
+        <div class="rh"><div class="rt">Weekly Market Digest</div><div class="rm" id="rm"></div></div>
+        <div><div class="pl" style="margin-bottom:7px">Sources found</div><div id="ng" style="display:flex;flex-direction:column;gap:7px"></div></div>
+        <div>
+          <div class="pl" style="margin-bottom:7px">LinkedIn post — Ardessa Company Page</div>
+          <div class="pc">
+            <div class="ph">
+              <div class="plbl">Ready to publish</div>
+              <div class="pbtns">
+                <button class="pb" id="cb" onclick="cpPost()">📋 Copy</button>
+                <button class="pb" onclick="rwPost()">↺ Rewrite</button>
+              </div>
+            </div>
+            <div class="pbody" id="pb"></div>
+            <div class="pft">
+              <div class="pst">Chars: <span id="pc2">—</span></div>
+              <div class="pst">Words: <span id="pw">—</span></div>
+              <div class="pst">Read: <span id="prd">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="pl" style="margin-bottom:6px">Refine the post</div>
+          <div class="adj">
+            <textarea class="ata" id="at" rows="2" placeholder="e.g. Shorter, open with the AI story, less formal..."></textarea>
+            <button class="ab" onclick="adjPost()">Apply →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISUAL RIGHT -->
+    <div id="vR" class="pv">
+      <div class="rh"><div class="rt">Visual Asset</div><div class="rm">1080 × 1080 · LinkedIn</div></div>
+      <div class="cw">
+        <div class="ve" id="ve"><div class="vei">🖼</div><div class="vet">Visual will appear here</div></div>
+        <div class="cc" id="cc" style="display:none"><canvas id="vc" width="1080" height="1080"></canvas></div>
+        <div class="ca" id="ca" style="display:none">
+          <button class="cab" onclick="genVis()">↺ Regenerate</button>
+          <button class="cab p" onclick="dlVis()">↓ Download PNG</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// INIT
+const now=new Date();
+const ws=new Date(now);ws.setDate(now.getDate()-now.getDay()+1);
+const we=new Date(ws);we.setDate(ws.getDate()+6);
+const fmt=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+document.getElementById('wt').textContent=`Week of ${fmt(ws)} – ${fmt(we)}`;
+
+let post='',news=[],hist=[],layout='centered';
+
+function swTab(t,el){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('a'));el.classList.add('a');
+  ['pL','vL','pR','vR'].forEach(id=>document.getElementById(id).classList.remove('a'));
+  document.getElementById(t==='post'?'pL':'vL').classList.add('a');
+  document.getElementById(t==='post'?'pR':'vR').classList.add('a');
+}
+
+function log(m,t=''){
+  const el=document.getElementById('slog');
+  const s=document.createElement('span');s.className=`sl ${t}`;s.textContent=`› ${m}`;
+  el.appendChild(document.createElement('br'));el.appendChild(s);el.scrollTop=el.scrollHeight;
+}
+function clrLog(){document.getElementById('slog').innerHTML='';}
+
+function setLoad(v){
+  document.getElementById('gb').disabled=v;
+  document.getElementById('sp').style.display=v?'block':'none';
+  document.getElementById('bt').textContent=v?'Generating...':'Generate this week\'s post';
+}
+
+function getFocus(){
+  const a=[];
+  if(document.getElementById('f1').checked)a.push('GP-LP dynamics, fundraising trends, investor relations');
+  if(document.getElementById('f2').checked)a.push('AI adoption in private markets and fintech');
+  if(document.getElementById('f3').checked)a.push('private markets macro: PE, VC, private credit, real estate, infrastructure');
+  if(document.getElementById('f4').checked)a.push('notable fund closes and fundraising announcements');
+  return a.join('; ');
+}
+
+async function run(){
+  clrLog();setLoad(true);
+  document.getElementById('ep').style.display='none';
+  document.getElementById('pr').style.display='none';
+  hist=[];
+  const tone=document.getElementById('tone').value;
+  const items=document.getElementById('items').value;
+  const focus=getFocus();
+  const week=document.getElementById('wt').textContent;
+  log('Searching this week\'s news...','act');
+  const sys=`You are a content strategist for Ardessa, an AI platform for private markets fundraising teams (PE, VC, private credit, real estate, infrastructure).
+
+Find the most relevant news from this week about private markets, fundraising, LP/GP dynamics, and AI in finance — then write a LinkedIn post for Ardessa's company page.
+
+POST RULES:
+- Tone: ${tone==='corporate'?'clear, professional, no jargon':tone==='analytical'?'data-driven, precise, analytical':'editorial, opinionated but grounded'}
+- ${items} news items max, each with one implication line for fundraising/BD teams
+- NO sales pitch, NO feature mentions, NO "book a demo" CTA
+- Ardessa can appear briefly at the end as context only — never as protagonist
+- End with a grounded market observation, not a tagline
+- UK English. No emojis.
+
+FOCUS AREAS: ${focus}
+
+RESPOND WITH VALID JSON ONLY — no preamble, no markdown:
+{"news":[{"headline":"...","source":"...","implication":"..."}],"post":"full post text"}`;
+  const um=`Find the most relevant private markets news from this week (${week}) and write a LinkedIn post for Ardessa's company page. Search for current news first.`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:um}]})});
+    const data=await res.json();
+    log('Processing results...','act');
+    let raw='';for(const b of data.content)if(b.type==='text')raw+=b.text;
+    const m=raw.match(/\{[\s\S]*\}/);if(!m)throw new Error('Could not parse response');
+    const p=JSON.parse(m[0]);news=p.news||[];post=p.post||'';
+    hist=[{role:'user',content:um},{role:'assistant',content:raw}];
+    renderPost();
+    log(`Done — ${news.length} items found`,'ok');log('Post ready to copy','ok');
+    if(post){
+      const lines=post.split('\n').filter(l=>l.trim());
+      if(lines[0])document.getElementById('vl1').value=lines[0].replace(/[#*]/g,'').trim().slice(0,45);
+      if(lines[1])document.getElementById('vl2').value=lines[1].replace(/[#*]/g,'').trim().slice(0,45);
+    }
+  }catch(e){log('Error: '+e.message,'err');}
+  setLoad(false);
+}
+
+function renderPost(){
+  const ng=document.getElementById('ng');ng.innerHTML='';
+  news.forEach((n,i)=>{ng.innerHTML+=`<div class="nc"><div class="nn">0${i+1}</div><div><div class="nh">${n.headline}</div><div class="ni">→ ${n.implication}</div><div class="ns">${n.source||'Verified source'}</div></div></div>`;});
+  document.getElementById('pb').textContent=post;
+  const w=post.split(/\s+/).filter(x=>x).length;
+  document.getElementById('pc2').textContent=post.length.toLocaleString();
+  document.getElementById('pw').textContent=w.toLocaleString();
+  document.getElementById('prd').textContent=`${Math.ceil(w/200)} min`;
+  document.getElementById('rm').textContent=`Generated ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('pr').style.display='flex';
+}
+
+async function adjPost(){
+  const ins=document.getElementById('at').value.trim();if(!ins||!post)return;
+  const btn=document.querySelector('.ab');btn.textContent='Adjusting...';btn.disabled=true;
+  try{
+    const msg=`Adjust the post: "${ins}". Keep same news items. Return JSON only: {"news":[...],"post":"..."}`;
+    hist.push({role:'user',content:msg});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Return valid JSON only with keys news and post.',messages:hist})});
+    const data=await res.json();let raw='';for(const b of data.content)if(b.type==='text')raw+=b.text;
+    const m=raw.match(/\{[\s\S]*\}/);if(m){const p=JSON.parse(m[0]);post=p.post||post;hist.push({role:'assistant',content:raw});}
+    document.getElementById('pb').textContent=post;
+    const w=post.split(/\s+/).filter(x=>x).length;
+    document.getElementById('pc2').textContent=post.length.toLocaleString();document.getElementById('pw').textContent=w.toLocaleString();
+    document.getElementById('at').value='';log('Adjusted ✓','ok');
+  }catch(e){log('Error: '+e.message,'err');}
+  btn.textContent='Apply →';btn.disabled=false;
+}
+
+async function rwPost(){
+  if(!post)return;
+  const btn=document.querySelectorAll('.pb')[1];btn.textContent='↺ Rewriting...';btn.disabled=true;
+  try{
+    const msg=`Rewrite the post with a different opening. Same news. Return JSON only: {"news":[...],"post":"..."}`;
+    hist.push({role:'user',content:msg});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Return valid JSON only.',messages:hist})});
+    const data=await res.json();let raw='';for(const b of data.content)if(b.type==='text')raw+=b.text;
+    const m=raw.match(/\{[\s\S]*\}/);if(m){const p=JSON.parse(m[0]);post=p.post||post;hist.push({role:'assistant',content:raw});}
+    document.getElementById('pb').textContent=post;log('Rewritten ✓','ok');
+  }catch(e){log('Error: '+e.message,'err');}
+  btn.textContent='↺ Rewrite';btn.disabled=false;
+}
+
+function cpPost(){
+  if(!post)return;
+  navigator.clipboard.writeText(post).then(()=>{
+    const b=document.getElementById('cb');b.textContent='✓ Copied';b.classList.add('ok');
+    setTimeout(()=>{b.textContent='📋 Copy';b.classList.remove('ok');},2000);
+  });
+}
+
+// VISUAL
+function selLo(n,el){document.querySelectorAll('.lo').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');layout=n;}
+
+function genVis(){
+  const L1=document.getElementById('vl1').value.trim()||'Real signals.';
+  const L2=document.getElementById('vl2').value.trim()||'Not stale data.';
+  const L3=document.getElementById('vl3').value.trim();
+  document.getElementById('ve').style.display='none';
+  document.getElementById('cc').style.display='block';
+  document.getElementById('ca').style.display='flex';
+  const canvas=document.getElementById('vc');
+  const ctx=canvas.getContext('2d');
+  const W=1080,H=1080;
+  canvas.width=W;canvas.height=H;
+
+  // BG
+  ctx.fillStyle='#060809';ctx.fillRect(0,0,W,H);
+
+  // Grain
+  const id=ctx.createImageData(W,H);
+  for(let i=0;i<id.data.length;i+=4){const v=Math.random()>.5?255:0;id.data[i]=id.data[i+1]=id.data[i+2]=v;id.data[i+3]=Math.floor(Math.random()*5);}
+  ctx.putImageData(id,0,0);
+
+  // Vignette
+  const vig=ctx.createRadialGradient(W/2,H/2,W*.28,W/2,H/2,W*.8);
+  vig.addColorStop(0,'rgba(0,0,0,0)');vig.addColorStop(1,'rgba(0,0,0,0.6)');
+  ctx.fillStyle=vig;ctx.fillRect(0,0,W,H);
+
+  if(layout==='centered')dCentered(ctx,W,H,L1,L2,L3);
+  else if(layout==='bottom')dBottom(ctx,W,H,L1,L2,L3);
+  else if(layout==='split')dSplit(ctx,W,H,L1,L2,L3);
+  else dEditorial(ctx,W,H,L1,L2,L3);
+  dLogo(ctx,W,H);
+}
+
+function dCentered(ctx,W,H,L1,L2,L3){
+  ctx.textAlign='center';
+  ctx.font='italic 800 150px "Barlow Condensed",sans-serif';
+  ctx.fillStyle='#ffffff';
+  ctx.fillText(L1,W/2,H/2-(L3?70:50));
+  ctx.font='300 115px "Barlow Condensed",sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.85)';
+  ctx.fillText(L2,W/2,H/2+108);
+  if(L3){ctx.font='400 34px "DM Sans",sans-serif';ctx.fillStyle='rgba(255,255,255,0.38)';ctx.fillText(L3,W/2,H/2+200);}
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W/2-100,H/2-166);ctx.lineTo(W/2+100,H/2-166);ctx.stroke();
+}
+
+function dBottom(ctx,W,H,L1,L2,L3){
+  const px=86;
+  ctx.textAlign='left';
+  ctx.font='italic 800 140px "Barlow Condensed",sans-serif';
+  ctx.fillStyle='#ffffff';
+  ctx.fillText(L1,px,H-274);
+  ctx.font='300 108px "Barlow Condensed",sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.82)';
+  ctx.fillText(L2,px,H-162);
+  if(L3){ctx.font='400 30px "DM Sans",sans-serif';ctx.fillStyle='rgba(255,255,255,0.38)';ctx.fillText(L3,px,H-104);}
+  ctx.strokeStyle='rgba(74,158,255,0.5)';ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(px-30,H/2+80);ctx.lineTo(px-30,H-310);ctx.stroke();
+}
+
+function dSplit(ctx,W,H,L1,L2,L3){
+  ctx.strokeStyle='rgba(255,255,255,0.07)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W/2+30,90);ctx.lineTo(W/2+30,H-90);ctx.stroke();
+  ctx.textAlign='left';
+  ctx.font='italic 800 118px "Barlow Condensed",sans-serif';
+  ctx.fillStyle='#ffffff';
+  wt(ctx,L1,76,290,W/2-30,128);
+  ctx.font='300 84px "Barlow Condensed",sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.72)';
+  wt(ctx,L2,W/2+68,530,W/2-110,96);
+  if(L3){ctx.font='400 28px "DM Sans",sans-serif';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.fillText(L3,76,H-108);}
+}
+
+function dEditorial(ctx,W,H,L1,L2,L3){
+  ctx.strokeStyle='rgba(255,255,255,0.13)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(76,158);ctx.lineTo(W-76,158);ctx.stroke();
+  ctx.textAlign='left';
+  ctx.font='500 20px "DM Mono",monospace';
+  ctx.fillStyle='rgba(255,255,255,0.28)';
+  ctx.fillText('PRIVATE MARKETS',76,128);
+  ctx.font='italic 800 162px "Barlow Condensed",sans-serif';
+  ctx.fillStyle='#ffffff';
+  wt(ctx,L1,76,390,W-152,170);
+  ctx.strokeStyle='rgba(255,255,255,0.09)';
+  ctx.beginPath();ctx.moveTo(76,H-218);ctx.lineTo(W-76,H-218);ctx.stroke();
+  ctx.font='300 70px "Barlow Condensed",sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.68)';
+  ctx.fillText(L2,76,H-144);
+  if(L3){ctx.font='400 26px "DM Sans",sans-serif';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.fillText(L3,76,H-98);}
+}
+
+function wt(ctx,text,x,y,maxW,lh){
+  const words=text.split(' ');let line='';
+  for(let n=0;n<words.length;n++){const t=line+words[n]+' ';if(ctx.measureText(t).width>maxW&&n>0){ctx.fillText(line,x,y);line=words[n]+' ';y+=lh;}else line=t;}
+  ctx.fillText(line,x,y);
+}
+
+function dLogo(ctx,W,H){
+  ctx.textAlign='right';
+  ctx.font='400 30px "DM Mono",monospace';
+  ctx.fillStyle='rgba(255,255,255,0.5)';
+  ctx.fillText('/Ardessa',W-76,H-66);
+}
+
+function dlVis(){
+  const canvas=document.getElementById('vc');
+  const a=document.createElement('a');
+  a.download=`ardessa-visual-${new Date().toISOString().slice(0,10)}.png`;
+  a.href=canvas.toDataURL('image/png');a.click();
+}
+</script>
+</body>
+</html>
